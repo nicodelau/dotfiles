@@ -1,0 +1,10 @@
+[[mgr.prepend_keymap]]
+on = "w"
+run = 'open set-wallpaper'
+desc = "Set hovered file as wallpaper"
+
+[[manager.prepend_keymap]]
+on = "Y"
+run = ["shell --block -- /usr/bin/copy_file_to_clipboard.sh %1"]
+
+

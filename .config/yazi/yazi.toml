@@ -1,0 +1,11 @@
+# Aplicar a todos los archivos de imagen
+[[open.prepend_rules]]
+mime = "image/*"
+use = ["set-wallpaper", "open"]
+
+# Integración con Hyprpaper + tu script
+[[opener.set-wallpaper]]
+run = '/home/nico/.local/bin/yazi-hyprpaper "$1"'
+for = "linux"
+desc = "Set as Wallpaper"
+
