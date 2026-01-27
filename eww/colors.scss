@@ -1,0 +1,36 @@
+// ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+// ┃              Liquid Glass Color Palette                     ┃
+// ┃         Unified color system - SCSS for EWW                 ┃
+// ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+// Glass Background
+$glass-bg: rgba(20, 20, 30, 0.65);
+$glass-bg-hover: rgba(30, 30, 45, 0.75);
+$glass-bg-solid: rgb(20, 20, 30);
+$glass-border: rgba(255, 255, 255, 0.12);
+$glass-border-active: rgba(255, 255, 255, 0.25);
+
+// Text
+$text-primary: rgba(255, 255, 255, 1.0);
+$text-secondary: rgba(255, 255, 255, 0.7);
+$text-muted: rgba(255, 255, 255, 0.4);
+
+// Accent (Apple blue)
+$accent-primary: rgba(10, 132, 255, 1.0);
+$accent-secondary: rgba(100, 180, 255, 1.0);
+$accent-glow: rgba(10, 132, 255, 0.3);
+
+// Status
+$color-success: rgba(48, 209, 88, 1.0);
+$color-warning: rgba(255, 214, 10, 1.0);
+$color-error: rgba(255, 69, 58, 1.0);
+
+// Dimensions
+$border-radius: 16px;
+$border-radius-small: 10px;
+$padding: 16px;
+$padding-small: 8px;
+
+// Shadows
+$shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.3);
+$shadow-glow: 0 0 20px rgba(10, 132, 255, 0.15);

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pacman -Qs:*)",
+      "Bash(pacman -Q:*)",
+      "Bash(sudo -n pacman:*)",
+      "Bash(chmod:*)",
+      "Bash(eww kill:*)",
+      "Bash(eww daemon:*)",
+      "Bash(eww open:*)",
+      "Bash(eww close:*)",
+      "Bash(eww active-windows:*)",
+      "Bash(pgrep:*)",
+      "Bash(hyprctl version:*)",
+      "Bash(hyprctl reload:*)",
+      "Bash(hyprctl layers:*)",
+      "Bash(pkill:*)"
+    ]
+  }
+}

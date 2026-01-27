@@ -1,0 +1,117 @@
+/* ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ */
+/* ┃         Liquid Glass - Wallpaper Selector Theme             ┃ */
+/* ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ */
+
+/* Colors */
+* {
+    glass-bg:           rgba(20, 20, 30, 0.80);
+    glass-bg-alt:       rgba(30, 30, 45, 0.85);
+    glass-border:       rgba(255, 255, 255, 0.12);
+    glass-border-active: rgba(255, 255, 255, 0.25);
+    text-primary:       rgba(255, 255, 255, 1.0);
+    text-secondary:     rgba(255, 255, 255, 0.7);
+    text-muted:         rgba(255, 255, 255, 0.4);
+    accent:             rgba(10, 132, 255, 1.0);
+    accent-light:       rgba(10, 132, 255, 0.2);
+    transparent:        transparent;
+}
+
+/* Window */
+window {
+    transparency:       "real";
+    background-color:   @glass-bg;
+    border:             1px solid;
+    border-color:       @glass-border;
+    border-radius:      20px;
+    width:              800px;
+    padding:            0;
+    location:           center;
+    anchor:             center;
+}
+
+mainbox {
+    background-color:   @transparent;
+    children:           [ inputbar, listview ];
+    spacing:            0;
+    padding:            20px;
+}
+
+/* Input */
+inputbar {
+    background-color:   rgba(255, 255, 255, 0.06);
+    border:             1px solid;
+    border-color:       @glass-border;
+    border-radius:      12px;
+    padding:            12px 16px;
+    margin:             0 0 16px 0;
+    children:           [ prompt, entry ];
+}
+
+prompt {
+    enabled:            true;
+    background-color:   @transparent;
+    text-color:         @text-secondary;
+    font:               "SF Pro Display Medium 12";
+}
+
+entry {
+    background-color:   @transparent;
+    text-color:         @text-primary;
+    cursor:             text;
+    placeholder:        "Search wallpapers...";
+    placeholder-color:  @text-muted;
+    padding:            0 0 0 8px;
+}
+
+/* Grid List */
+listview {
+    background-color:   @transparent;
+    columns:            3;
+    lines:              3;
+    spacing:            12px;
+    cycle:              true;
+    dynamic:            true;
+    scrollbar:          false;
+    layout:             vertical;
+    fixed-height:       true;
+    fixed-columns:      true;
+}
+
+/* Elements - Card Style */
+element {
+    background-color:   rgba(255, 255, 255, 0.04);
+    border:             1px solid;
+    border-color:       @glass-border;
+    border-radius:      12px;
+    padding:            8px;
+    orientation:        vertical;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color:   rgba(255, 255, 255, 0.04);
+    text-color:         @text-primary;
+}
+
+element selected.normal {
+    background-color:   @accent-light;
+    border-color:       @accent;
+    text-color:         @text-primary;
+}
+
+element-icon {
+    background-color:   @transparent;
+    size:               220px;
+    cursor:             pointer;
+    border-radius:      8px;
+}
+
+element-text {
+    background-color:   @transparent;
+    text-color:         inherit;
+    cursor:             pointer;
+    horizontal-align:   0.5;
+    vertical-align:     0.5;
+    padding:            8px 4px 4px 4px;
+    font:               "SF Pro Display 11";
+}

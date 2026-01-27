@@ -1,0 +1,132 @@
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃              Liquid Glass - Dunst Configuration              ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+[global]
+    # Display
+    monitor = 0
+    follow = mouse
+
+    # Geometry
+    width = 320
+    height = 120
+    origin = top-right
+    offset = 16x16
+    scale = 0
+
+    # Progress bar
+    progress_bar = true
+    progress_bar_height = 4
+    progress_bar_frame_width = 0
+    progress_bar_min_width = 280
+    progress_bar_max_width = 300
+    progress_bar_corner_radius = 2
+
+    # Notification
+    notification_limit = 4
+    indicate_hidden = yes
+    shrink = no
+    separator_height = 0
+    padding = 16
+    horizontal_padding = 20
+    text_icon_padding = 16
+    frame_width = 1
+    frame_color = "#ffffff1f"
+    gap_size = 8
+    separator_color = frame
+    sort = yes
+    idle_threshold = 120
+
+    # Text
+    font = SF Pro Display 11
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+
+    # Icons
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 48
+    icon_path = /usr/share/icons/Papirus-Dark/48x48/status/:/usr/share/icons/Papirus-Dark/48x48/devices/:/usr/share/icons/Papirus-Dark/48x48/apps/
+
+    # History
+    sticky_history = yes
+    history_length = 20
+
+    # Misc
+    dmenu = /usr/bin/rofi -dmenu -p dunst
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+    corner_radius = 16
+    ignore_dbusclose = false
+    force_xwayland = false
+    force_xinerama = false
+
+    # Mouse actions
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_all
+    mouse_right_click = close_current
+
+[experimental]
+    per_monitor_dpi = false
+
+# ======= Urgency Levels =======
+
+[urgency_low]
+    background = "#14141ecc"
+    foreground = "#ffffffb3"
+    highlight = "#0A84FF"
+    frame_color = "#ffffff1f"
+    timeout = 5
+    default_icon = dialog-information
+
+[urgency_normal]
+    background = "#14141ecc"
+    foreground = "#ffffff"
+    highlight = "#0A84FF"
+    frame_color = "#ffffff1f"
+    timeout = 8
+    default_icon = dialog-information
+
+[urgency_critical]
+    background = "#14141ecc"
+    foreground = "#ffffff"
+    highlight = "#FF453A"
+    frame_color = "#FF453A66"
+    timeout = 0
+    default_icon = dialog-warning
+
+# ======= App-specific Rules =======
+
+[volume]
+    appname = "Volume"
+    highlight = "#0A84FF"
+    timeout = 2
+    history_ignore = yes
+
+[brightness]
+    appname = "Brightness"
+    highlight = "#FFD60A"
+    timeout = 2
+    history_ignore = yes
+
+[media]
+    appname = "Media"
+    highlight = "#30D158"
+    timeout = 3
+
+[screenshot]
+    appname = "Screenshot"
+    highlight = "#BF5AF2"
+    timeout = 4

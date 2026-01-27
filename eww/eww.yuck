@@ -1,0 +1,225 @@
+; Liquid Glass - EWW Widgets
+
+; ======= Variables =======
+
+; Workspace
+(deflisten workspace_current
+  `bash -c 'hyprctl activeworkspace -j | jq -r ".id" 2>/dev/null || echo 1'`)
+
+(deflisten workspace_listener
+  `bash -c 'socat -u UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock - | while read -r line; do hyprctl activeworkspace -j | jq -r ".id"; done'`)
+
+; Clock
+(defpoll clock_time :interval "1s"
+  `date '+%H:%M'`)
+(defpoll clock_date :interval "60s"
+  `date '+%A, %B %d'`)
+
+; Media
+(defpoll media_title :interval "1s"
+  `playerctl metadata title 2>/dev/null || echo ''`)
+(defpoll media_artist :interval "1s"
+  `playerctl metadata artist 2>/dev/null || echo ''`)
+(defpoll media_status :interval "1s"
+  `playerctl status 2>/dev/null || echo 'Stopped'`)
+
+; Volume
+(defpoll volume_level :interval "200ms"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print int($2*100)}' || echo 50`)
+(defpoll volume_muted :interval "200ms"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 'true' || echo 'false'`)
+
+; ======= Workspace Indicator =======
+(defwidget workspace-indicator []
+  (box :class "workspace-container"
+       :orientation "h"
+       :halign "center"
+       :space-evenly false
+    (label :class "workspace-number"
+           :text {workspace_listener != "" ? workspace_listener : (workspace_current != "" ? workspace_current : "1")})))
+
+(defwindow workspace
+  :monitor 0
+  :geometry (geometry :x "0"
+                      :y "10"
+                      :width "60px"
+                      :height "36px"
+                      :anchor "top center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (workspace-indicator))
+
+; ======= Clock Widget =======
+(defwidget clock-widget []
+  (box :class "clock-container"
+       :orientation "v"
+       :halign "center"
+       :valign "center"
+    (label :class "clock-time" :text clock_time)
+    (label :class "clock-date" :text clock_date)))
+
+(defwindow clock
+  :monitor 0
+  :geometry (geometry :x "0"
+                      :y "55"
+                      :width "240px"
+                      :height "100px"
+                      :anchor "top center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (clock-widget))
+
+; ======= Power Menu =======
+(defwidget powermenu-widget []
+  (box :class "powermenu-container"
+       :orientation "v"
+       :halign "center"
+       :valign "center"
+       :space-evenly false
+    (label :class "powermenu-title" :text "POWER")
+    (box :orientation "h"
+         :halign "center"
+         :space-evenly true
+      (button :class "powermenu-button"
+              :onclick "systemctl poweroff"
+        (box :orientation "v" :space-evenly false
+          (label :class "powermenu-icon" :text "⏻")
+          (label :class "powermenu-label" :text "Shutdown")))
+      (button :class "powermenu-button"
+              :onclick "systemctl reboot"
+        (box :orientation "v" :space-evenly false
+          (label :class "powermenu-icon" :text "↻")
+          (label :class "powermenu-label" :text "Reboot")))
+      (button :class "powermenu-button"
+              :onclick "systemctl suspend && sleep 0.5 && eww close powermenu"
+        (box :orientation "v" :space-evenly false
+          (label :class "powermenu-icon" :text "⏾")
+          (label :class "powermenu-label" :text "Suspend"))))))
+
+(defwindow powermenu
+  :monitor 0
+  :geometry (geometry :x "0"
+                      :y "0"
+                      :width "380px"
+                      :height "180px"
+                      :anchor "center center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  (powermenu-widget))
+
+; ======= Media Player (top right) =======
+(defwidget media-widget []
+  (box :class "media-container"
+       :orientation "v"
+       :space-evenly false
+    (box :class "media-info"
+         :orientation "v"
+         :space-evenly false
+      (label :class "media-title"
+             :text {media_title != "" ? media_title : "No media"}
+             :limit-width 28
+             :halign "start")
+      (label :class "media-artist"
+             :text media_artist
+             :limit-width 32
+             :halign "start"
+             :visible {media_artist != ""}))
+    (box :class "media-controls"
+         :orientation "h"
+         :halign "center"
+         :space-evenly false
+      (button :class "media-button"
+              :onclick "playerctl previous"
+        (label :text "⏮"))
+      (button :class "media-button play-pause"
+              :onclick "playerctl play-pause"
+        (label :text {media_status == "Playing" ? "⏸" : "▶"}))
+      (button :class "media-button"
+              :onclick "playerctl next"
+        (label :text "⏭")))
+    (box :class "volume-container"
+         :orientation "v"
+         :space-evenly false
+      (label :class "volume-label" :text "VOLUME" :halign "start")
+      (box :orientation "h"
+           :space-evenly false
+        (button :class "media-button"
+                :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+          (label :text {volume_muted == "true" ? "🔇" : "🔊"}))
+        (scale :class "volume-slider"
+               :value {volume_level != "" ? volume_level : 50}
+               :min 0
+               :max 100
+               :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
+               :hexpand true)
+        (label :class "osd-value" :text "${volume_level}%")))))
+
+(defwindow media
+  :monitor 0
+  :geometry (geometry :x "-16"
+                      :y "16"
+                      :width "300px"
+                      :height "200px"
+                      :anchor "top right")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  (media-widget))
+
+; ======= OSD Volume =======
+(defwidget osd-volume-widget []
+  (box :class "osd-container"
+       :orientation "h"
+       :space-evenly false
+    (label :class "osd-icon" :text {volume_muted == "true" ? "🔇" : "🔊"})
+    (box :orientation "v"
+         :hexpand true
+      (label :class "osd-value" :text "${volume_level}%" :halign "end")
+      (box :class "osd-bar"
+        (box :class "osd-bar-fill"
+             :hexpand false
+             :style "min-width: ${volume_level}%;")))))
+
+(defwindow osd-volume
+  :monitor 0
+  :geometry (geometry :x "0"
+                      :y "-60"
+                      :width "180px"
+                      :height "45px"
+                      :anchor "bottom center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (osd-volume-widget))
+
+; ======= OSD Brightness =======
+(defpoll brightness_level :interval "200ms"
+  `brightnessctl -m 2>/dev/null | cut -d',' -f4 | tr -d '%' || echo 50`)
+
+(defwidget osd-brightness-widget []
+  (box :class "osd-container"
+       :orientation "h"
+       :space-evenly false
+    (label :class "osd-icon" :text "☀")
+    (box :orientation "v"
+         :hexpand true
+      (label :class "osd-value" :text "${brightness_level}%" :halign "end")
+      (box :class "osd-bar"
+        (box :class "osd-bar-fill"
+             :hexpand false
+             :style "min-width: ${brightness_level}%;")))))
+
+(defwindow osd-brightness
+  :monitor 0
+  :geometry (geometry :x "0"
+                      :y "-60"
+                      :width "180px"
+                      :height "45px"
+                      :anchor "bottom center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable false
+  (osd-brightness-widget))
