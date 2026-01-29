@@ -74,6 +74,8 @@ paru -S --noconfirm \
     hyprpaper \
     hyprpicker \
     hyprcursor \
+    hyprlock \
+    hypridle \
     xdg-desktop-portal-hyprland \
     qt5-wayland \
     qt6-wayland
@@ -171,6 +173,14 @@ paru -S --noconfirm \
     adwaita-icon-theme \
     papirus-icon-theme
 
+# Install display manager (SDDM)
+print_status "Installing SDDM display manager..."
+paru -S --noconfirm \
+    sddm \
+    qt5-graphicaleffects \
+    qt5-quickcontrols2 \
+    qt5-svg
+
 # Install clipboard manager
 print_status "Installing clipboard manager..."
 paru -S --noconfirm \
@@ -194,6 +204,7 @@ print_status "Enabling system services..."
 sudo systemctl enable NetworkManager
 sudo systemctl enable bluetooth
 sudo systemctl enable pipewire-pulse
+sudo systemctl enable sddm
 
 # Create necessary directories
 print_status "Creating necessary directories..."
