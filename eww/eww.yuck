@@ -29,6 +29,18 @@
 (defpoll volume_muted :interval "200ms"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 'true' || echo 'false'`)
 
+; Battery
+(defpoll battery_capacity :interval "10s"
+  `cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo '-1'`)
+(defpoll battery_status :interval "10s"
+  `cat /sys/class/power_supply/BAT0/status 2>/dev/null || echo 'Unknown'`)
+
+; Network
+(defpoll network_ssid :interval "5s"
+  `iwctl station wlan0 show 2>/dev/null | grep "Connected network" | sed "s/.*Connected network\s*//" | xargs || echo ""`)
+(defpoll network_state :interval "5s"
+  `iwctl station wlan0 show 2>/dev/null | grep "State" | head -1 | sed "s/.*State\s*//" | xargs || echo "disconnected"`)
+
 ; ======= Workspace Indicator =======
 (defwidget workspace-indicator []
   (box :class "workspace-container"
@@ -110,59 +122,126 @@
   :focusable true
   (powermenu-widget))
 
-; ======= Media Player (top right) =======
-(defwidget media-widget []
-  (box :class "media-container"
-       :orientation "v"
+; ======= Control Center (top right) =======
+
+(defwidget battery-section []
+  (box :class "battery-container"
+       :orientation "h"
        :space-evenly false
-    (box :class "media-info"
-         :orientation "v"
+       :visible {battery_capacity != "" && battery_capacity != "-1"}
+    (label :class {battery_capacity == "" ? "battery-icon" :
+                   (battery_status == "Charging" || battery_status == "Full" ? "battery-icon charging" :
+                   (battery_capacity > 60 ? "battery-icon level-high" :
+                   (battery_capacity > 20 ? "battery-icon level-medium" :
+                   "battery-icon level-low")))}
+           :text {battery_capacity == "" ? "" :
+                  (battery_status == "Charging" ? "󰂄" :
+                  (battery_capacity > 80 ? "󰁹" :
+                  (battery_capacity > 60 ? "󰂀" :
+                  (battery_capacity > 40 ? "󰁾" :
+                  (battery_capacity > 20 ? "󰁼" : "󰁺")))))})
+    (box :orientation "v"
          :space-evenly false
-      (label :class "media-title"
-             :text {media_title != "" ? media_title : "No media"}
-             :limit-width 28
+         :hexpand true
+      (label :class "battery-percentage"
+             :text "${battery_capacity}%"
              :halign "start")
-      (label :class "media-artist"
-             :text media_artist
-             :limit-width 32
-             :halign "start"
-             :visible {media_artist != ""}))
-    (box :class "media-controls"
-         :orientation "h"
-         :halign "center"
+      (label :class "battery-status"
+             :text {battery_status == "Charging" ? "Charging" :
+                    (battery_status == "Full" ? "Fully Charged" : "On Battery")}
+             :halign "start"))))
+
+(defwidget network-section []
+  (box :class "network-container"
+       :orientation "h"
+       :space-evenly false
+    (label :class {network_state == "connected" ? "network-icon connected" : "network-icon"}
+           :text {network_state == "connected" ? "󰤨" : "󰤭"})
+    (box :orientation "v"
          :space-evenly false
-      (button :class "media-button"
-              :onclick "playerctl previous"
-        (label :text "⏮"))
-      (button :class "media-button play-pause"
-              :onclick "playerctl play-pause"
-        (label :text {media_status == "Playing" ? "⏸" : "▶"}))
-      (button :class "media-button"
-              :onclick "playerctl next"
-        (label :text "⏭")))
-    (box :class "volume-container"
+         :hexpand true
+      (label :class "network-ssid"
+             :text {network_ssid != "" ? network_ssid : "Not Connected"}
+             :halign "start"
+             :limit-width 20)
+      (label :class "network-status"
+             :text {network_state == "connected" ? "Wi-Fi" : "Disconnected"}
+             :halign "start"))
+    (button :class "network-button"
+            :onclick "~/.config/hypr/scripts/rofi-wifi.sh &"
+      (label :text "󰒓"))))
+
+(defwidget media-widget []
+  (eventbox
+    :onhover "echo cancel > /tmp/eww-media-timer"
+    :onhoverlost "bash -c 'ID=$RANDOM; echo $ID > /tmp/eww-media-timer; sleep 5; [ \"$(cat /tmp/eww-media-timer 2>/dev/null)\" = \"$ID\" ] && eww close media' &"
+    (box :class "media-container"
          :orientation "v"
          :space-evenly false
-      (label :class "volume-label" :text "VOLUME" :halign "start")
-      (box :orientation "h"
+      ; --- Header with close button ---
+      (box :class "media-header"
+           :orientation "h"
+           :space-evenly false
+        (label :class "media-header-title"
+               :text "Control Center"
+               :halign "start"
+               :hexpand true)
+        (button :class "media-close-button"
+                :onclick "eww close media"
+          (label :text "󰅖")))
+      ; --- Media Section ---
+      (box :class "media-info"
+           :orientation "v"
+           :space-evenly false
+        (label :class "media-title"
+               :text {media_title != "" ? media_title : "No media"}
+               :limit-width 28
+               :halign "start")
+        (label :class "media-artist"
+               :text media_artist
+               :limit-width 32
+               :halign "start"
+               :visible {media_artist != ""}))
+      (box :class "media-controls"
+           :orientation "h"
+           :halign "center"
            :space-evenly false
         (button :class "media-button"
-                :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          (label :text {volume_muted == "true" ? "🔇" : "🔊"}))
-        (scale :class "volume-slider"
-               :value {volume_level != "" ? volume_level : 50}
-               :min 0
-               :max 100
-               :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
-               :hexpand true)
-        (label :class "osd-value" :text "${volume_level}%")))))
+                :onclick "playerctl previous"
+          (label :text "󰒮"))
+        (button :class "media-button play-pause"
+                :onclick "playerctl play-pause"
+          (label :text {media_status == "Playing" ? "󰏤" : "󰐊"}))
+        (button :class "media-button"
+                :onclick "playerctl next"
+          (label :text "󰒭")))
+      (box :class "volume-container"
+           :orientation "v"
+           :space-evenly false
+        (label :class "volume-label" :text "VOLUME" :halign "start")
+        (box :orientation "h"
+             :space-evenly false
+          (button :class "media-button"
+                  :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+            (label :text {volume_muted == "true" ? "󰖁" : "󰕾"}))
+          (scale :class "volume-slider"
+                 :value {volume_level != "" ? volume_level : 50}
+                 :min 0
+                 :max 100
+                 :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
+                 :hexpand true)
+          (label :class "osd-value" :text "${volume_level}%")))
+      ; --- Battery Section ---
+      (battery-section)
+      ; --- Network Section ---
+      (network-section))))
 
 (defwindow media
   :monitor 0
-  :geometry (geometry :x "-16"
+  :geometry (geometry :x "16"
                       :y "16"
-                      :width "300px"
-                      :height "200px"
+                      :width "350px"
+                      :height "310px"
                       :anchor "top right")
   :stacking "overlay"
   :exclusive false
@@ -174,7 +253,7 @@
   (box :class "osd-container"
        :orientation "h"
        :space-evenly false
-    (label :class "osd-icon" :text {volume_muted == "true" ? "🔇" : "🔊"})
+    (label :class "osd-icon" :text {volume_muted == "true" ? "󰖁" : "󰕾"})
     (box :orientation "v"
          :hexpand true
       (label :class "osd-value" :text "${volume_level}%" :halign "end")
@@ -203,7 +282,7 @@
   (box :class "osd-container"
        :orientation "h"
        :space-evenly false
-    (label :class "osd-icon" :text "☀")
+    (label :class "osd-icon" :text "󰃠")
     (box :orientation "v"
          :hexpand true
       (label :class "osd-value" :text "${brightness_level}%" :halign "end")

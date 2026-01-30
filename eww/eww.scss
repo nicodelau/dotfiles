@@ -10,6 +10,7 @@ $text-secondary: rgba(255, 255, 255, 0.7);
 $text-muted: rgba(255, 255, 255, 0.4);
 $accent-primary: #0A84FF;
 $accent-secondary: #64B4FF;
+$color-success: #30D158;
 $color-error: #FF453A;
 $color-warning: #FFD60A;
 $border-radius: 16px;
@@ -18,7 +19,7 @@ $border-radius-small: 10px;
 // Reset global
 * {
     all: unset;
-    font-family: "Inter", "Cantarell", "Noto Sans", sans-serif;
+    font-family: "Inter", "Cantarell", "Noto Sans", "JetBrainsMono Nerd Font", sans-serif;
 }
 
 // ======= Workspace Indicator =======
@@ -103,7 +104,31 @@ $border-radius-small: 10px;
     border: 1px solid $glass-border;
     border-radius: $border-radius;
     padding: 16px 20px;
-    min-width: 280px;
+}
+
+.media-header {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid $glass-border;
+}
+
+.media-header-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text-secondary;
+}
+
+.media-close-button {
+    background-color: transparent;
+    padding: 4px 8px;
+    border-radius: $border-radius-small;
+    color: $text-muted;
+    font-size: 14px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+        color: $color-error;
+    }
 }
 
 .media-info {
@@ -144,6 +169,8 @@ $border-radius-small: 10px;
     color: white;
     padding: 14px;
     margin: 0 10px;
+    min-width: 18px;
+    min-height: 18px;
 
     &:hover {
         background-color: $accent-secondary;
@@ -167,7 +194,6 @@ $border-radius-small: 10px;
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 3px;
         min-height: 4px;
-        min-width: 150px;
     }
 
     highlight {
@@ -180,6 +206,87 @@ $border-radius-small: 10px;
         border-radius: 50%;
         min-width: 12px;
         min-height: 12px;
+    }
+}
+
+// ======= Battery Section =======
+.battery-container {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $glass-border;
+}
+
+.battery-icon {
+    font-size: 24px;
+    margin-right: 12px;
+    min-width: 28px;
+
+    &.charging {
+        color: $accent-primary;
+    }
+    &.level-high {
+        color: $color-success;
+    }
+    &.level-medium {
+        color: $color-warning;
+    }
+    &.level-low {
+        color: $color-error;
+    }
+}
+
+.battery-percentage {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+.battery-status {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-top: 2px;
+}
+
+// ======= Network Section =======
+.network-container {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $glass-border;
+}
+
+.network-icon {
+    font-size: 22px;
+    color: $text-muted;
+    margin-right: 12px;
+    min-width: 28px;
+
+    &.connected {
+        color: $accent-primary;
+    }
+}
+
+.network-ssid {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+.network-status {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-top: 2px;
+}
+
+.network-button {
+    background-color: transparent;
+    padding: 8px;
+    border-radius: 50%;
+    color: $text-secondary;
+    font-size: 18px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+        color: $accent-primary;
     }
 }
 

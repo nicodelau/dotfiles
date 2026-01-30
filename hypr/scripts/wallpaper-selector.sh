@@ -12,8 +12,8 @@ if [ ! -d "$WALLPAPER_DIR" ] || [ -z "$(ls -A "$WALLPAPER_DIR" 2>/dev/null)" ]; 
     exit 1
 fi
 
-# Get wallpapers
-mapfile -t wallpapers < <(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
+# Get wallpapers (follow symlinks)
+mapfile -t wallpapers < <(find -L "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
 
 if [ ${#wallpapers[@]} -eq 0 ]; then
     notify-send "Wallpaper Selector" "No image files found" -i dialog-warning

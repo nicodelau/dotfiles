@@ -57,6 +57,23 @@ case "$widget" in
         # OSD shows for 2 seconds
         show_temp "$widget" 2
         ;;
+    media)
+        # Toggle media with 5s auto-close timer
+        if is_open "$widget"; then
+            echo cancel > /tmp/eww-media-timer
+            eww close "$widget"
+        else
+            for popup in clock powermenu; do
+                if is_open "$popup"; then
+                    eww close "$popup"
+                fi
+            done
+            monitor=$(get_active_monitor)
+            eww open "$widget" --screen "$monitor"
+            # Start initial auto-close timer
+            (ID=$RANDOM; echo $ID > /tmp/eww-media-timer; sleep 5; [ "$(cat /tmp/eww-media-timer 2>/dev/null)" = "$ID" ] && eww close "$widget") &
+        fi
+        ;;
     *)
         toggle "$widget"
         ;;

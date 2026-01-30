@@ -12,7 +12,7 @@ os.execute("mkdir -p " .. cache_dir)
 -- Get list of image files
 local function get_wallpapers()
     local wallpapers = {}
-    local handle = io.popen('find "' .. wallpaper_dir .. '" -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \\) 2>/dev/null | sort')
+    local handle = io.popen('find -L "' .. wallpaper_dir .. '" -type f \\( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \\) 2>/dev/null | sort')
     if handle then
         for line in handle:lines() do
             table.insert(wallpapers, line)
