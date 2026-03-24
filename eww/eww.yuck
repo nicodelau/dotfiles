@@ -22,12 +22,31 @@
   `playerctl metadata artist 2>/dev/null || echo ''`)
 (defpoll media_status :interval "1s"
   `playerctl status 2>/dev/null || echo 'Stopped'`)
+(defpoll media_art :interval "2s"
+  `~/.config/hypr/scripts/media-art.sh`)
 
 ; Volume
 (defpoll volume_level :interval "200ms"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print int($2*100)}' || echo 50`)
 (defpoll volume_muted :interval "200ms"
   `wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 'true' || echo 'false'`)
+
+; Control Center page state
+(defvar cc_page "main")
+
+; Current accent color (for active dot indicator)
+(defpoll current_accent :interval "2s"
+  `cat ~/.config/eww/current-accent 2>/dev/null || echo "#0A84FF"`)
+
+; Audio Devices
+(defpoll audio_sink_name :interval "2s"
+  `n=$(pactl get-default-sink 2>/dev/null); pactl list sinks 2>/dev/null | grep -A20 "Name: $n" | grep "Description:" | head -1 | sed 's/.*Description: //' | xargs || echo "Unknown"`)
+(defpoll audio_source_name :interval "2s"
+  `n=$(pactl get-default-source 2>/dev/null); pactl list sources 2>/dev/null | grep -A20 "Name: $n" | grep "Description:" | head -1 | sed 's/.*Description: //' | xargs || echo "Unknown"`)
+(defpoll mic_level :interval "500ms"
+  `wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null | awk '{print int($2*100)}' || echo 50`)
+(defpoll mic_muted :interval "500ms"
+  `wpctl get-volume @DEFAULT_AUDIO_SOURCE@ 2>/dev/null | grep -q MUTED && echo 'true' || echo 'false'`)
 
 ; Battery
 (defpoll battery_capacity :interval "10s"
@@ -37,9 +56,19 @@
 
 ; Network
 (defpoll network_ssid :interval "5s"
-  `iwctl station wlan0 show 2>/dev/null | grep "Connected network" | sed "s/.*Connected network\s*//" | xargs || echo ""`)
+  `ip route 2>/dev/null | grep "^default" | awk '{print $5}' | head -1 | xargs || echo ""`)
 (defpoll network_state :interval "5s"
-  `iwctl station wlan0 show 2>/dev/null | grep "State" | head -1 | sed "s/.*State\s*//" | xargs || echo "disconnected"`)
+  `ip route 2>/dev/null | grep -q "^default" && echo "connected" || echo "disconnected"`)
+(defpoll network_ip :interval "10s"
+  `iface=$(ip route 2>/dev/null | grep "^default" | awk '{print $5}' | head -1); ip -4 addr show "$iface" 2>/dev/null | awk '/inet /{print $2}' | cut -d/ -f1 | head -1 || echo ""`)
+
+; Inline picker lists (JSON arrays for (for) loops)
+(defpoll wifi_networks :interval "20s"
+  `~/.config/hypr/scripts/wifi-list.sh`)
+(defpoll audio_sinks :interval "5s"
+  `~/.config/hypr/scripts/audio-sinks-list.sh`)
+(defpoll audio_sources :interval "5s"
+  `~/.config/hypr/scripts/audio-sources-list.sh`)
 
 ; ======= Workspace Indicator =======
 (defwidget workspace-indicator []
@@ -124,6 +153,199 @@
 
 ; ======= Control Center (top right) =======
 
+(defwidget quick-controls []
+  (box :class "quick-tiles"
+       :orientation "h"
+       :space-evenly true
+    (button :class {cc_page == "sink" ? "quick-tile quick-tile-active" : "quick-tile"}
+            :onclick "eww update cc_page=sink"
+      (box :orientation "v" :halign "center" :space-evenly false
+        (label :class {cc_page == "sink" ? "tile-icon tile-icon-active" : "tile-icon"}
+               :text "󰕾")
+        (label :class "tile-label" :text "OUTPUT")
+        (label :class "tile-value" :text audio_sink_name :limit-width 8 :halign "center")))
+    (button :class {cc_page == "source" ? "quick-tile quick-tile-active" : "quick-tile"}
+            :onclick "eww update cc_page=source"
+      (box :orientation "v" :halign "center" :space-evenly false
+        (label :class {cc_page == "source" ? "tile-icon tile-icon-active" : "tile-icon"}
+               :text {mic_muted == "true" ? "󰍭" : "󰍬"})
+        (label :class "tile-label" :text "INPUT")
+        (label :class "tile-value" :text "${mic_level}%" :halign "center")))
+    (button :class {cc_page == "wifi" ? "quick-tile quick-tile-active" : "quick-tile"}
+            :onclick "eww update cc_page=wifi"
+      (box :orientation "v" :halign "center" :space-evenly false
+        (label :class {cc_page == "wifi" ? "tile-icon tile-icon-active" : "tile-icon"}
+               :text {network_state == "connected" ? "󰈀" : "󰈂"})
+        (label :class "tile-label" :text "NETWORK")
+        (label :class "tile-value"
+               :text {network_state == "connected" ? "Online" : "Offline"}
+               :halign "center")))
+    (button :class {cc_page == "brightness" ? "quick-tile quick-tile-active" : "quick-tile"}
+            :onclick "eww update cc_page=brightness"
+      (box :orientation "v" :halign "center" :space-evenly false
+        (label :class {cc_page == "brightness" ? "tile-icon tile-icon-active" : "tile-icon"}
+               :text "󰃠")
+        (label :class "tile-label" :text "BRIGHT")
+        (label :class "tile-value" :text "${brightness_level}%" :halign "center")))))
+
+(defwidget color-dot [accent secondary label]
+  (button :class {current_accent == accent ? "color-dot active" : "color-dot"}
+          :style "background-color: ${accent};"
+          :tooltip label
+          :onclick "~/.config/hypr/scripts/set-accent.sh '${accent}' '${secondary}' &"
+    (label :class "color-check"
+           :text "✓"
+           :visible {current_accent == accent})))
+
+; ── Shared sub-page header ────────────────────────────────────
+(defwidget subpage-header [title]
+  (box :class "settings-header"
+       :orientation "h"
+       :space-evenly false
+    (button :class "settings-back-btn"
+            :onclick "eww update cc_page=main"
+      (label :text "←"))
+    (label :class "settings-title"
+           :text title
+           :halign "start"
+           :hexpand true)
+    (button :class "media-close-button"
+            :onclick "eww close media"
+      (label :text "󰅖"))))
+
+; ── Colors page ───────────────────────────────────────────────
+(defwidget colors-page []
+  (box :class "settings-content"
+       :orientation "v"
+       :space-evenly false
+    (subpage-header :title "Accent Color")
+    (label :class "settings-section-label" :text "SYSTEM COLOR" :halign "start")
+    (box :class "color-grid"
+         :orientation "v"
+         :space-evenly false
+         :halign "center"
+      (box :class "color-row" :orientation "h" :halign "center" :space-evenly false
+        (color-dot :accent "#0A84FF" :secondary "#64B4FF" :label "Blue")
+        (color-dot :accent "#BF5AF2" :secondary "#D68FFF" :label "Purple")
+        (color-dot :accent "#FF453A" :secondary "#FF6B63" :label "Red"))
+      (box :class "color-row" :orientation "h" :halign "center" :space-evenly false
+        (color-dot :accent "#FF9F0A" :secondary "#FFBD52" :label "Orange")
+        (color-dot :accent "#30D158" :secondary "#5BE57A" :label "Green")
+        (color-dot :accent "#FF375F" :secondary "#FF6B87" :label "Pink"))
+      (box :class "color-row" :orientation "h" :halign "center" :space-evenly false
+        (color-dot :accent "#5AC8FA" :secondary "#89DAFF" :label "Teal")
+        (color-dot :accent "#5E5CE6" :secondary "#8685EF" :label "Indigo")
+        (color-dot :accent "#FFD60A" :secondary "#FFE248" :label "Yellow")))
+    (label :class "settings-section-label" :text "WALLPAPER" :halign "start")
+    (button :class "settings-action-btn"
+            :onclick "~/.config/hypr/scripts/wallpaper-selector.sh &"
+      (box :orientation "h" :space-evenly false
+        (label :class "settings-action-icon" :text "󰋩")
+        (label :class "settings-action-label" :text "Change Wallpaper")))))
+
+; ── Network page ──────────────────────────────────────────────
+(defwidget wifi-page []
+  (box :class "settings-content"
+       :orientation "v"
+       :space-evenly false
+    (subpage-header :title "Network")
+    (box :orientation "v"
+         :halign "center"
+         :space-evenly false
+         :margin-top 24
+      (label :class {network_state == "connected" ? "tile-icon tile-icon-active" : "tile-icon"}
+             :text {network_state == "connected" ? "󰈀" : "󰈂"}
+             :style "font-size: 52px; margin-bottom: 16px;")
+      (label :class "network-ssid"
+             :text {network_ssid != "" ? network_ssid : "Not Connected"}
+             :halign "center"
+             :style "margin-bottom: 4px;")
+      (label :class "network-status"
+             :text {network_state == "connected" ? "Connected" : "No Connection"}
+             :halign "center")
+      (label :class "network-status"
+             :text network_ip
+             :halign "center"
+             :visible {network_ip != ""}
+             :style "margin-top: 4px; font-size: 12px;"))))
+
+; ── Audio Output page ─────────────────────────────────────────
+(defwidget sink-page []
+  (box :class "settings-content"
+       :orientation "v"
+       :space-evenly false
+    (subpage-header :title "Audio Output")
+    (box :orientation "v" :space-evenly false
+      (for sink in audio_sinks
+        (button :class {sink.active ? "list-item list-item-active" : "list-item"}
+                :onclick "pactl set-default-sink '${sink.name}' &"
+          (box :orientation "h" :space-evenly false
+            (label :class "list-item-icon" :text "󰕾")
+            (label :class "list-item-label"
+                   :text "${sink.desc}"
+                   :halign "start" :hexpand true :limit-width 22)
+            (label :class "list-item-check"
+                   :text "●"
+                   :visible {sink.active})))))))
+
+; ── Audio Input page ──────────────────────────────────────────
+(defwidget source-page []
+  (box :class "settings-content"
+       :orientation "v"
+       :space-evenly false
+    (subpage-header :title "Audio Input")
+    (box :orientation "v" :space-evenly false
+      (for src in audio_sources
+        (button :class {src.active ? "list-item list-item-active" : "list-item"}
+                :onclick "pactl set-default-source '${src.name}' &"
+          (box :orientation "h" :space-evenly false
+            (label :class "list-item-icon" :text "󰍬")
+            (label :class "list-item-label"
+                   :text "${src.desc}"
+                   :halign "start" :hexpand true :limit-width 22)
+            (label :class "list-item-check"
+                   :text "●"
+                   :visible {src.active})))))
+    (box :class "volume-container"
+         :orientation "h"
+         :space-evenly false
+      (button :class "media-button"
+              :onclick "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        (label :text {mic_muted == "true" ? "󰍭" : "󰍬"}))
+      (scale :class "volume-slider"
+             :value {mic_level != "" ? mic_level : 50}
+             :min 0
+             :max 100
+             :onchange "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ {}%"
+             :hexpand true)
+      (label :class "osd-value" :text "${mic_level}%"))))
+
+; ── Brightness page ───────────────────────────────────────────
+(defwidget brightness-page []
+  (box :class "settings-content"
+       :orientation "v"
+       :space-evenly false
+    (subpage-header :title "Brightness")
+    (box :orientation "v"
+         :halign "center"
+         :space-evenly false
+      (label :class "tile-icon"
+             :text "󰃠"
+             :style "font-size: 52px; margin-bottom: 16px;")
+      (label :class "network-ssid"
+             :text "${brightness_level}%"
+             :halign "center"
+             :style "font-size: 28px; margin-bottom: 20px;")
+      (box :orientation "h" :space-evenly false
+        (label :class "brightness-icon" :text "󰖨")
+        (scale :class "volume-slider"
+               :value {brightness_level != "" ? brightness_level : 50}
+               :min 0
+               :max 100
+               :onchange "brightnessctl set {}% 2>/dev/null"
+               :hexpand true)
+        (label :class "brightness-icon" :text "󰃠")))))
+
 (defwidget battery-section []
   (box :class "battery-container"
        :orientation "h"
@@ -168,7 +390,7 @@
              :text {network_state == "connected" ? "Wi-Fi" : "Disconnected"}
              :halign "start"))
     (button :class "network-button"
-            :onclick "~/.config/hypr/scripts/rofi-wifi.sh &"
+            :onclick "iwctl station wlan0 scan 2>/dev/null & eww update cc_page=wifi"
       (label :text "󰒓"))))
 
 (defwidget media-widget []
@@ -176,72 +398,98 @@
     :onhover "echo cancel > /tmp/eww-media-timer"
     :onhoverlost "bash -c 'ID=$RANDOM; echo $ID > /tmp/eww-media-timer; sleep 5; [ \"$(cat /tmp/eww-media-timer 2>/dev/null)\" = \"$ID\" ] && eww close media' &"
     (box :class "media-container"
-         :orientation "v"
-         :space-evenly false
-      ; --- Header with close button ---
-      (box :class "media-header"
-           :orientation "h"
-           :space-evenly false
-        (label :class "media-header-title"
-               :text "Control Center"
-               :halign "start"
-               :hexpand true)
-        (button :class "media-close-button"
-                :onclick "eww close media"
-          (label :text "󰅖")))
-      ; --- Media Section ---
-      (box :class "media-info"
-           :orientation "v"
-           :space-evenly false
-        (label :class "media-title"
-               :text {media_title != "" ? media_title : "No media"}
-               :limit-width 28
-               :halign "start")
-        (label :class "media-artist"
-               :text media_artist
-               :limit-width 32
-               :halign "start"
-               :visible {media_artist != ""}))
-      (box :class "media-controls"
-           :orientation "h"
-           :halign "center"
-           :space-evenly false
-        (button :class "media-button"
-                :onclick "playerctl previous"
-          (label :text "󰒮"))
-        (button :class "media-button play-pause"
-                :onclick "playerctl play-pause"
-          (label :text {media_status == "Playing" ? "󰏤" : "󰐊"}))
-        (button :class "media-button"
-                :onclick "playerctl next"
-          (label :text "󰒭")))
-      (box :class "volume-container"
-           :orientation "v"
-           :space-evenly false
-        (label :class "volume-label" :text "VOLUME" :halign "start")
-        (box :orientation "h"
+      (overlay
+        ; ══ PAGE 1: Main Content ══════════════════════════════
+        (box :class "cc-main-panel"
+             :orientation "v"
              :space-evenly false
-          (button :class "media-button"
-                  :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-            (label :text {volume_muted == "true" ? "󰖁" : "󰕾"}))
-          (scale :class "volume-slider"
-                 :value {volume_level != "" ? volume_level : 50}
-                 :min 0
-                 :max 100
-                 :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
-                 :hexpand true)
-          (label :class "osd-value" :text "${volume_level}%")))
-      ; --- Battery Section ---
-      (battery-section)
-      ; --- Network Section ---
-      (network-section))))
+          ; --- Header ---
+          (box :class "media-header"
+               :orientation "h"
+               :space-evenly false
+            (label :class "media-header-title"
+                   :text "Control Center"
+                   :halign "start"
+                   :hexpand true)
+            (button :class "settings-gear-btn"
+                    :onclick "eww update cc_page=colors"
+              (label :text "󰒓"))
+            (button :class "media-close-button"
+                    :onclick "eww close media"
+              (label :text "󰅖")))
+          ; --- Media ---
+          (box :class "media-card"
+               :orientation "h"
+               :space-evenly false
+            (box :class "media-art-wrapper"
+              (image :class "media-art"
+                     :path media_art
+                     :image-width 56
+                     :image-height 56
+                     :visible {media_art != ""})
+              (label :class "media-art-icon"
+                     :text "󰎈"
+                     :visible {media_art == ""}))
+            (box :orientation "v"
+                 :space-evenly false
+                 :hexpand true
+                 :valign "center"
+              (label :class "media-title"
+                     :text {media_title != "" ? media_title : "No media"}
+                     :limit-width 16
+                     :halign "start")
+              (label :class "media-artist"
+                     :text media_artist
+                     :limit-width 16
+                     :halign "start"
+                     :visible {media_artist != ""}))
+            (box :orientation "h"
+                 :space-evenly false
+                 :valign "center"
+              (button :class "media-button"
+                      :onclick "playerctl previous"
+                (label :text "󰒮"))
+              (button :class "media-button play-pause"
+                      :onclick "playerctl play-pause"
+                (label :text {media_status == "Playing" ? "󰏤" : "󰐊"}))
+              (button :class "media-button"
+                      :onclick "playerctl next"
+                (label :text "󰒭"))))
+          (box :class "volume-container"
+               :orientation "v"
+               :space-evenly false
+            (label :class "volume-label" :text "VOLUME" :halign "start")
+            (box :orientation "h"
+                 :space-evenly false
+              (button :class "media-button"
+                      :onclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                (label :text {volume_muted == "true" ? "󰖁" : "󰕾"}))
+              (scale :class "volume-slider"
+                     :value {volume_level != "" ? volume_level : 50}
+                     :min 0
+                     :max 100
+                     :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%"
+                     :hexpand true)
+              (label :class "osd-value" :text "${volume_level}%")))
+          (quick-controls)
+          (battery-section))
+        ; ══ PAGE 2: Settings overlay (slides in from right) ══
+        (box :class {cc_page == "main" ? "cc-settings-overlay cc-settings-hidden" : "cc-settings-overlay cc-settings-visible"}
+             :orientation "v"
+             :space-evenly false
+             :vexpand true
+             :hexpand true
+          (box :visible {cc_page == "colors"}     :orientation "v" :space-evenly false (colors-page))
+          (box :visible {cc_page == "wifi"}       :orientation "v" :space-evenly false (wifi-page))
+          (box :visible {cc_page == "sink"}       :orientation "v" :space-evenly false (sink-page))
+          (box :visible {cc_page == "source"}     :orientation "v" :space-evenly false (source-page))
+          (box :visible {cc_page == "brightness"} :orientation "v" :space-evenly false (brightness-page)))))))
 
 (defwindow media
   :monitor 0
   :geometry (geometry :x "16"
                       :y "16"
                       :width "350px"
-                      :height "310px"
                       :anchor "top right")
   :stacking "overlay"
   :exclusive false

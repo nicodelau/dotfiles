@@ -1,4 +1,5 @@
 // Liquid Glass - EWW Styles (CSS puro, sin @extend)
+@import "accent-current";
 
 // Variables
 $glass-bg: rgba(20, 20, 30, 0.75);
@@ -8,8 +9,6 @@ $glass-border-active: rgba(255, 255, 255, 0.3);
 $text-primary: #ffffff;
 $text-secondary: rgba(255, 255, 255, 0.7);
 $text-muted: rgba(255, 255, 255, 0.4);
-$accent-primary: #0A84FF;
-$accent-secondary: #64B4FF;
 $color-success: #30D158;
 $color-error: #FF453A;
 $color-warning: #FFD60A;
@@ -103,7 +102,253 @@ $border-radius-small: 10px;
     background-color: $glass-bg;
     border: 1px solid $glass-border;
     border-radius: $border-radius;
+}
+
+.cc-main-panel {
     padding: 16px 20px;
+}
+
+// ─── Settings overlay (slides in from the right) ──────────────
+.cc-settings-overlay {
+    background-color: rgba(14, 14, 20, 0.97);
+    border-radius: $border-radius;
+    padding: 16px 20px;
+    transition: margin-left 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    &.cc-settings-hidden {
+        margin-left: 350px;
+    }
+    &.cc-settings-visible {
+        margin-left: 0px;
+    }
+}
+
+// ─── Quick control tiles ───────────────────────────────────────
+.quick-tiles {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $glass-border;
+}
+
+.quick-tile {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid $glass-border;
+    border-radius: $border-radius-small;
+    padding: 10px 4px;
+    margin: 0 3px;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: $glass-border-active;
+    }
+
+    &.quick-tile-active {
+        background-color: rgba($accent-primary, 0.15);
+        border-color: $accent-primary;
+    }
+}
+
+.tile-icon {
+    font-size: 22px;
+    color: $text-primary;
+    margin-bottom: 4px;
+}
+
+.tile-icon-active {
+    color: $accent-primary;
+}
+
+.tile-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: $text-muted;
+    letter-spacing: 0.5px;
+}
+
+.tile-value {
+    font-size: 9px;
+    color: $text-secondary;
+    margin-top: 2px;
+}
+
+// ─── Settings page content ────────────────────────────────────
+.settings-gear-btn {
+    background-color: transparent;
+    padding: 4px 6px;
+    border-radius: $border-radius-small;
+    color: $text-muted;
+    font-size: 16px;
+    margin-right: 2px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+        color: $accent-primary;
+    }
+}
+
+.settings-header {
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid $glass-border;
+}
+
+.settings-back-btn {
+    background-color: transparent;
+    padding: 4px 8px;
+    border-radius: $border-radius-small;
+    color: $text-secondary;
+    font-size: 20px;
+    margin-right: 6px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+        color: $accent-primary;
+    }
+}
+
+.settings-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+.settings-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: $text-muted;
+    margin-top: 16px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+// ─── Color picker ─────────────────────────────────────────────
+.color-grid {
+    margin-top: 4px;
+}
+
+.color-row {
+    margin-bottom: 12px;
+}
+
+.color-dot {
+    min-width: 50px;
+    min-height: 50px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    margin: 0 8px;
+
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    &.active {
+        border-color: white;
+    }
+}
+
+.color-check {
+    font-size: 20px;
+    color: white;
+}
+
+// ─── Inline list items (wifi, audio device lists) ────────────
+.list-item {
+    background-color: transparent;
+    border-radius: $border-radius-small;
+    padding: 10px 8px;
+    margin-bottom: 2px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+    }
+    &.list-item-active {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+    &.list-item-danger:hover {
+        background-color: rgba(255, 69, 58, 0.15);
+        .list-item-icon { color: $color-error; }
+        .list-item-label { color: $color-error; }
+    }
+}
+
+.list-item-icon {
+    font-size: 18px;
+    color: $text-secondary;
+    min-width: 32px;
+    margin-right: 4px;
+}
+
+.list-item-active .list-item-icon {
+    color: $accent-primary;
+}
+
+.list-item-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: $text-primary;
+}
+
+.list-item-active .list-item-label {
+    font-weight: 500;
+}
+
+.list-item-check {
+    font-size: 10px;
+    color: $accent-primary;
+    min-width: 16px;
+}
+
+// ─── Settings action button (wallpaper, etc.) ─────────────────
+.settings-action-btn {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid $glass-border;
+    border-radius: $border-radius-small;
+    padding: 12px 16px;
+    margin-top: 4px;
+
+    &:hover {
+        background-color: $glass-bg-hover;
+        border-color: $glass-border-active;
+    }
+}
+
+.settings-action-icon {
+    font-size: 20px;
+    color: $accent-primary;
+    margin-right: 12px;
+}
+
+.settings-action-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+}
+
+// ─── Media Card ────────────────────────────────────────────────
+.media-card {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid $glass-border;
+    border-radius: $border-radius-small;
+    padding: 10px;
+    margin-bottom: 12px;
+}
+
+.media-art-wrapper {
+    min-width: 56px;
+    min-height: 56px;
+    margin-right: 10px;
+}
+
+.media-art {
+    border-radius: 6px;
+    min-width: 56px;
+    min-height: 56px;
+}
+
+.media-art-icon {
+    font-size: 26px;
+    color: $text-muted;
+    min-width: 56px;
+    min-height: 56px;
 }
 
 .media-header {
@@ -131,49 +376,44 @@ $border-radius-small: 10px;
     }
 }
 
-.media-info {
-    margin-bottom: 12px;
-}
 
 .media-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: $text-primary;
     margin-bottom: 2px;
 }
 
 .media-artist {
-    font-size: 12px;
+    font-size: 11px;
     color: $text-secondary;
-}
-
-.media-controls {
-    margin: 12px 0;
 }
 
 .media-button {
     background-color: transparent;
-    padding: 10px;
+    padding: 8px;
     border-radius: 50%;
-    color: $text-primary;
-    font-size: 18px;
+    color: $text-secondary;
+    font-size: 16px;
 
     &:hover {
         background-color: $glass-bg-hover;
-        color: $accent-primary;
+        color: $text-primary;
     }
 }
 
 .play-pause {
     background-color: $accent-primary;
     color: white;
-    padding: 14px;
-    margin: 0 10px;
-    min-width: 18px;
-    min-height: 18px;
+    padding: 9px;
+    margin: 0 4px;
+    min-width: 14px;
+    min-height: 14px;
+    font-size: 14px;
 
     &:hover {
         background-color: $accent-secondary;
+        color: white;
     }
 }
 
@@ -288,6 +528,14 @@ $border-radius-small: 10px;
         background-color: $glass-bg-hover;
         color: $accent-primary;
     }
+}
+
+// ======= Brightness Icon =======
+.brightness-icon {
+    font-size: 18px;
+    color: $color-warning;
+    margin-right: 8px;
+    min-width: 28px;
 }
 
 // ======= OSD =======
