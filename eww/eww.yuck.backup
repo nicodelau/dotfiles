@@ -419,14 +419,14 @@
                      :orientation "h"
                      :space-evenly false
                      :spacing 3
-                  (eventbox :onclick "notify-send 'Focus clicked for ${app.class}'"
-                    (button :class "action-btn focus-btn"
-                            :tooltip "Enfocar"
-                            "Focus"))
-                  (eventbox :onclick "notify-send 'Close clicked for ${app.class}'"
-                    (button :class "action-btn close-btn"
-                            :tooltip "Cerrar"
-                            "Close")))))))
+                  (button :class "action-btn focus-btn"
+                          :onclick "~/.config/hypr/scripts/task-manager.sh focus-window ${app.windows[0].pid} && eww close media"
+                          :tooltip "Enfocar"
+                          "󰕰")
+                  (button :class "action-btn close-btn"
+                          :onclick "~/.config/hypr/scripts/task-manager.sh close-window ${app.windows[0].pid}"
+                          :tooltip "Cerrar"
+                          "󰅖"))))))
         
         ; Background apps content
         (revealer :reveal {task_page == "background"}
@@ -536,7 +536,7 @@
                    (button :class "action-btn service-stop-btn"
                            :onclick "systemctl --user stop ${service.service}"
                            :tooltip "Detener"
-                            "󰓛"))))))))))
+                            "󰓛")))))))))))
 
 (defwidget battery-section []
   (box :class "battery-container"

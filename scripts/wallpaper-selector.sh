@@ -13,7 +13,7 @@ if [ ! -d "$WALLPAPER_DIR" ] || [ -z "$(ls -A "$WALLPAPER_DIR" 2>/dev/null)" ]; 
 fi
 
 # Get wallpapers (follow symlinks)
-mapfile -t wallpapers < <(find -L "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | sort)
+mapfile -t wallpapers < <(find -L "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" -o -iname "*.gif" \) | sort)
 
 if [ ${#wallpapers[@]} -eq 0 ]; then
     notify-send "Wallpaper Selector" "No image files found" -i dialog-warning
@@ -45,10 +45,17 @@ selected=$(echo -e "$menu" | rofi -dmenu -i -p "Wallpaper" -theme ~/.config/rofi
 if [ -n "$selected" ] && [ "$selected" -ge 0 ] 2>/dev/null; then
     chosen="${wallpapers[$selected]}"
     if [ -f "$chosen" ]; then
-        # Set wallpaper with swww
-        swww img "$chosen" --transition-type grow --transition-pos center --transition-duration 1 --transition-fps 60
+        # Check if it's a GIF for optimized handling
+        if [[ "${chosen,,}" == *.gif ]]; then
+            # GIF: Use simpler transition for better performance
+            awww img "$chosen" --transition-type simple --transition-step 255 --filter Nearest
+            notify-send "Animated Wallpaper" "Set to $(basename "$chosen")" -i preferences-desktop-wallpaper
+        else
+            # Static image: Use fancy transition
+            awww img "$chosen" --transition-type grow --transition-pos center --transition-duration 1 --transition-fps 60
+            notify-send "Wallpaper" "Changed to $(basename "$chosen")" -i preferences-desktop-wallpaper
+        fi
         # Save for persistence
         echo "$chosen" > "$HOME/.cache/current_wallpaper"
-        notify-send "Wallpaper" "Changed to $(basename "$chosen")" -i preferences-desktop-wallpaper
     fi
 fi

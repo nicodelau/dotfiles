@@ -54,13 +54,34 @@ local function build_rofi_input(wallpapers)
     return table.concat(lines, "\n")
 end
 
--- Set wallpaper using swww
+-- Set wallpaper using awww
 local function set_wallpaper(path)
-    -- swww with nice transition
-    os.execute(string.format(
-        'swww img "%s" --transition-type grow --transition-pos center --transition-duration 1 --transition-fps 60',
-        path
-    ))
+    -- Check if it's a GIF for optimized handling
+    local is_gif = path:lower():match("%.gif$")
+    
+    if is_gif then
+        -- GIF: Use simpler transition for better performance
+        os.execute(string.format(
+            'awww img "%s" --transition-type simple --transition-step 255 --filter Nearest',
+            path
+        ))
+        -- Notify with animated wallpaper message
+        os.execute(string.format(
+            'notify-send "Animated Wallpaper" "Set to %s" -i preferences-desktop-wallpaper',
+            path:match("([^/]+)$")
+        ))
+    else
+        -- Static image: Use fancy transition
+        os.execute(string.format(
+            'awww img "%s" --transition-type grow --transition-pos center --transition-duration 1 --transition-fps 60',
+            path
+        ))
+        -- Standard notification
+        os.execute(string.format(
+            'notify-send "Wallpaper" "Changed to %s" -i preferences-desktop-wallpaper',
+            path:match("([^/]+)$")
+        ))
+    end
 
     -- Save current wallpaper path for persistence
     local f = io.open(os.getenv("HOME") .. "/.cache/current_wallpaper", "w")

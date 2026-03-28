@@ -171,6 +171,150 @@ $border-radius-small: 10px;
     margin-top: 2px;
 }
 
+// ======= Task Manager Styles =======
+
+.quick-tile-large {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid $glass-border;
+    border-radius: $border-radius-small;
+    padding: 12px 16px;
+    margin: 0 3px;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: $glass-border-active;
+    }
+
+    &.quick-tile-active {
+        background-color: rgba($accent-primary, 0.15);
+        border-color: $accent-primary;
+    }
+}
+
+.task-tabs {
+    margin-bottom: 12px;
+}
+
+.task-tab {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid $glass-border;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: $text-secondary;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: $text-primary;
+    }
+
+    &.active {
+        background-color: $accent-primary;
+        color: white;
+        border-color: $accent-primary;
+    }
+}
+
+.task-content {
+    min-height: 200px;
+}
+
+.task-item {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.app-item {
+    border-left: 2px solid $color-success;
+}
+
+.process-item {
+    border-left: 2px solid $color-warning;
+}
+
+.service-item {
+    border-left: 2px solid #007AFF;
+}
+
+.app-class, .process-name, .service-name {
+    color: $text-primary;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.app-count, .process-stats, .service-status {
+    color: $text-secondary;
+    font-size: 10px;
+}
+
+.app-actions, .process-actions, .service-actions {
+}
+
+.app-icon {
+    margin-right: 8px;
+}
+
+.app-info, .process-info, .service-info {
+}
+
+.action-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 12px;
+    transition: all 0.15s ease;
+    min-width: 24px;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+.focus-btn {
+    color: $color-success;
+    &:hover {
+        background-color: rgba(48, 209, 88, 0.15);
+        border-color: $color-success;
+    }
+}
+
+.close-btn, .kill-btn {
+    color: $color-error;
+    &:hover {
+        background-color: rgba(255, 69, 58, 0.15);
+        border-color: $color-error;
+    }
+}
+
+.force-kill-btn {
+    color: #FF6B35;
+    &:hover {
+        background-color: rgba(255, 107, 53, 0.15);
+        border-color: #FF6B35;
+    }
+}
+
+.service-stop-btn {
+    color: $color-warning;
+    &:hover {
+        background-color: rgba(255, 214, 10, 0.15);
+        border-color: $color-warning;
+    }
+}
+
 // ─── Settings page content ────────────────────────────────────
 .settings-gear-btn {
     background-color: transparent;
@@ -570,4 +714,88 @@ $border-radius-small: 10px;
     background-color: $accent-primary;
     border-radius: 2px;
     min-height: 3px;
+}
+
+// ======= System Monitor Styles =======
+
+.system-monitor-container {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: $border-radius-small;
+    padding: 12px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.system-monitor-title {
+    color: $text-muted;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.monitor-item {
+    margin-bottom: 8px;
+}
+
+.monitor-icon {
+    color: $text-primary;
+    font-size: 16px;
+    margin-right: 8px;
+    min-width: 20px;
+}
+
+.monitor-label {
+    color: $text-primary;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.monitor-value {
+    color: $text-secondary;
+    font-size: 10px;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+}
+
+.monitor-bar-bg {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    min-height: 4px;
+    margin-top: 4px;
+}
+
+.monitor-bar-fill {
+    min-height: 4px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.cpu-bar {
+    background-color: #007AFF;
+}
+
+.ram-bar {
+    background-color: $color-success;
+}
+
+.temp-bar {
+    background-color: $color-warning;
+}
+
+.disk-bar {
+    background-color: #BF5AF2;
+}
+
+// Background apps styles
+.background-item {
+    border-left: 2px solid #FF9F0A;
+}
+
+.restore-btn {
+    color: #007AFF;
+    &:hover {
+        background-color: rgba(0, 122, 255, 0.15);
+        border-color: #007AFF;
+    }
 }

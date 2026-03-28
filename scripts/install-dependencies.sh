@@ -68,7 +68,7 @@ install_aur_packages() {
 
     paru -S --needed --noconfirm \
         eww \
-        swww \
+        awww \
         cliphist
 
     echo -e "${GREEN}✓${NC} AUR packages installed"
