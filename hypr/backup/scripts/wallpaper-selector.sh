@@ -1,7 +1,7 @@
 #!/bin/bash
 # Wallpaper Selector with rofi
 
-WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
+WALLPAPER_DIR="$HOME/Pictures/wallpapers"
 CACHE_DIR="$HOME/.cache/wallpaper-thumbs"
 
 mkdir -p "$CACHE_DIR"
@@ -45,19 +45,16 @@ selected=$(echo -e "$menu" | rofi -dmenu -i -p "Wallpaper" -theme ~/.config/rofi
 if [ -n "$selected" ] && [ "$selected" -ge 0 ] 2>/dev/null; then
     chosen="${wallpapers[$selected]}"
     if [ -f "$chosen" ]; then
-        # Get the focused monitor
-        monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .name')
-        
-        # Apply the wallpaper using hyprctl hyprpaper
-        # Format: hyprctl hyprpaper wallpaper "[mon],[path]"
-        hyprctl hyprpaper wallpaper "$monitor,$chosen"
-        
-        # Also run caelestia to update the color scheme
-        caelestia wallpaper -f "$chosen"
-        
-        # Notify user
-        notify-send "Wallpaper" "Changed to $(basename "$chosen")" -i preferences-desktop-wallpaper
-        
+        # Check if it's a GIF for optimized handling
+        if [[ "${chosen,,}" == *.gif ]]; then
+            # GIF: Use simpler transition for better performance
+            awww img "$chosen" --transition-type simple --transition-step 255 --filter Nearest
+            notify-send "Animated Wallpaper" "Set to $(basename "$chosen")" -i preferences-desktop-wallpaper
+        else
+            # Static image: Use fancy transition
+            awww img "$chosen" --transition-type grow --transition-pos center --transition-duration 1 --transition-fps 60
+            notify-send "Wallpaper" "Changed to $(basename "$chosen")" -i preferences-desktop-wallpaper
+        fi
         # Save for persistence
         echo "$chosen" > "$HOME/.cache/current_wallpaper"
     fi

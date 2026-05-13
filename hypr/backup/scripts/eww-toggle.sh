@@ -26,7 +26,7 @@ toggle() {
         eww close "$1"
     else
         # Close other popups first
-        for popup in clock powermenu media; do
+        for popup in clock powermenu media task-manager; do
             if [ "$popup" != "$1" ] && is_open "$popup"; then
                 eww close "$popup"
             fi
@@ -63,7 +63,7 @@ case "$widget" in
             echo cancel > /tmp/eww-media-timer
             eww close "$widget"
         else
-            for popup in clock powermenu; do
+            for popup in clock powermenu task-manager; do
                 if is_open "$popup"; then
                     eww close "$popup"
                 fi
@@ -72,6 +72,29 @@ case "$widget" in
             eww open "$widget" --screen "$monitor"
             # Start initial auto-close timer
             (ID=$RANDOM; echo $ID > /tmp/eww-media-timer; sleep 5; [ "$(cat /tmp/eww-media-timer 2>/dev/null)" = "$ID" ] && eww close "$widget") &
+        fi
+        ;;
+    tasks)
+        # Toggle control center and set to tasks page
+        if is_open "media"; then
+            eww close "media"
+        else
+            # Close other popups first
+            for popup in clock powermenu task-manager; do
+                if is_open "$popup"; then
+                    eww close "$popup"
+                fi
+            done
+            monitor=$(get_active_monitor)
+            # Set page to tasks and open control center
+            eww update cc_page=tasks
+            eww open "media" --screen "$monitor"
+            
+            # Update task manager data
+            eww update task_apps="$(~/.config/hypr/scripts/task-manager.sh apps)"
+            eww update task_background="$(~/.config/hypr/scripts/task-manager.sh background)"
+            eww update task_processes="$(~/.config/hypr/scripts/task-manager.sh processes)"
+            eww update task_services="$(~/.config/hypr/scripts/task-manager.sh services)"
         fi
         ;;
     *)
