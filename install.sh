@@ -78,6 +78,10 @@ if [ -f "$DOTFILES/mimeapps.list" ]; then
     backup_and_link "$DOTFILES/mimeapps.list" "$CONFIG/mimeapps.list"
 fi
 
+if [ -f "$DOTFILES/tmux.conf" ]; then
+    backup_and_link "$DOTFILES/tmux.conf" "$HOME/.tmux.conf"
+fi
+
 # ── Symlink wallpapers ────────────────────────────────────────────
 section "Linking wallpapers"
 
