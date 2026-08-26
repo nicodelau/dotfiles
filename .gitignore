@@ -1,0 +1,11 @@
+# Zsh runtime files
+config/zsh/zcompdump*
+config/zsh/zhistory*
+config/zsh/plugins/
+
+# Cache and temp files
+.cache/
+.vscode/
+*.log
+*.tmp
+*.modified

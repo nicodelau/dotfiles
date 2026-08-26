@@ -1,0 +1,7 @@
+# Archivos temporales
+*.swp
+*.bak
+*.tmp
+
+# Archivos de LazyVim (instalados automáticamente)
+lazy-lock.json
