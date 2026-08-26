@@ -67,10 +67,12 @@ fi
 # ------------------------------------------------------------------------------
 # 4. Create Directories and Symlinks
 # ------------------------------------------------------------------------------
-DOTFILES_DIR="/home/nicolas/Documents/GitHub/dotfiles"
-CONFIG_AGY_DIR="/home/nicolas/.gemini/antigravity-cli"
-CONFIG_GEMINI_DIR="/home/nicolas/.gemini/config"
-CONFIG_CLAUDE_DIR="/home/nicolas/.claude"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+CONFIG_AGY_DIR="$HOME/.gemini/antigravity-cli"
+CONFIG_GEMINI_DIR="$HOME/.gemini/config"
+CONFIG_CLAUDE_DIR="$HOME/.claude"
+
 
 info "Creating configuration directories..."
 mkdir -p "$CONFIG_AGY_DIR"
@@ -113,8 +115,8 @@ if [ -f "$DOTFILES_DIR/ai/mcp_config.json" ]; then
     ln -sf "$DOTFILES_DIR/ai/mcp_config.json" "$CONFIG_GEMINI_DIR/mcp_config.json"
     
     # Claude Code MCP Config
-    backup_if_needed "/home/nicolas/.claude.json"
-    ln -sf "$DOTFILES_DIR/ai/mcp_config.json" "/home/nicolas/.claude.json"
+    backup_if_needed "$HOME/.claude.json"
+    ln -sf "$DOTFILES_DIR/ai/mcp_config.json" "$HOME/.claude.json"
     success "Symlinked MCP configs to both agy (~/.gemini/config/) and claude (~/.claude.json)"
 else
     error "mcp_config.json not found in $DOTFILES_DIR/ai/"
@@ -140,9 +142,9 @@ fi
 
 # 6. Global Ignore File (.geminiignore)
 if [ -f "$DOTFILES_DIR/ai/.geminiignore" ]; then
-    backup_if_needed "/home/nicolas/.geminiignore"
-    ln -sf "$DOTFILES_DIR/ai/.geminiignore" "/home/nicolas/.geminiignore"
-    ln -sf "$DOTFILES_DIR/ai/.geminiignore" "/home/nicolas/.aiexclude"
+    backup_if_needed "$HOME/.geminiignore"
+    ln -sf "$DOTFILES_DIR/ai/.geminiignore" "$HOME/.geminiignore"
+    ln -sf "$DOTFILES_DIR/ai/.geminiignore" "$HOME/.aiexclude"
     success "Symlinked ignore files (~/.geminiignore & ~/.aiexclude)"
 else
     error ".geminiignore not found in $DOTFILES_DIR/ai/"
@@ -151,7 +153,7 @@ fi
 # ------------------------------------------------------------------------------
 # 5. Zsh Shell Integration
 # ------------------------------------------------------------------------------
-ZSHRC="/home/nicolas/.zshrc"
+ZSHRC="$HOME/.zshrc"
 ALIASES_SOURCE="source $DOTFILES_DIR/zsh/ai_aliases.zsh"
 
 if [ -f "$ZSHRC" ]; then
