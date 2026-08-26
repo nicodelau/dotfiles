@@ -25,6 +25,13 @@
         "--db",
         "/home/nicolas/Projects/local.db"
       ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git"
+      ]
     }
   }
 }
