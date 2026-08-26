@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "postgresql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://nicolas:local_db_password@localhost:5432/postgres"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/nicolas/Documents/GitHub/dotfiles",
+        "/home/nicolas/Projects"
+      ]
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "--db",
+        "/home/nicolas/Projects/local.db"
+      ]
+    }
+  }
+}

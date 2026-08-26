@@ -1,0 +1,148 @@
+# ==============================================================================
+# Global Gemini / Antigravity Ignore File - Token Efficiency Optimizer
+# Location: ~/Documents/GitHub/dotfiles/ai/.geminiignore
+# Symlinked to: ~/.geminiignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Version Control & Systems
+# ------------------------------------------------------------------------------
+.git/
+.svn/
+.hg/
+.github/
+.gitlab/
+.idea/
+.vscode/
+*.suo
+*.sln
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# ------------------------------------------------------------------------------
+# Dependencies & Package Managers (Token Monsters)
+# ------------------------------------------------------------------------------
+node_modules/
+bower_components/
+vendor/
+third_party/
+.pnpm-store/
+.yarn/
+jspm_packages/
+
+# ------------------------------------------------------------------------------
+# Lockfiles (Massive text files, exclude to save tokens)
+# ------------------------------------------------------------------------------
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+composer.lock
+Cargo.lock
+Gemfile.lock
+mix.lock
+poetry.lock
+Pipfile.lock
+go.sum
+mix.deps
+
+# ------------------------------------------------------------------------------
+# Build & Distribution Outputs
+# ------------------------------------------------------------------------------
+dist/
+build/
+out/
+target/
+bin/
+obj/
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.o
+*.obj
+*.class
+*.pyc
+*.pyo
+*.pyd
+*.war
+*.ear
+*.jar
+
+# ------------------------------------------------------------------------------
+# Databases, Caches, & Temp Files
+# ------------------------------------------------------------------------------
+.cache/
+.sass-cache/
+.pytest_cache/
+.mypy_cache/
+.eslintcache
+.turbo/
+.vercel/
+.next/
+.nuxt/
+tmp/
+temp/
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.rdb
+*.sql
+*.sql.gz
+
+# ------------------------------------------------------------------------------
+# Virtual Environments (Python / Node / etc.)
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+.env/
+virtualenv/
+__pycache__/
+.tox/
+.nox/
+
+# ------------------------------------------------------------------------------
+# Compiled Assets & Media Files (Unreadable binary data)
+# ------------------------------------------------------------------------------
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+*.flac
+*.ogg
+*.woff
+*.woff2
+*.eot
+*.ttf
+*.otf
+
+# ------------------------------------------------------------------------------
+# Documentation & Reports
+# ------------------------------------------------------------------------------
+site/
+_build/
+docs/_build/
+coverage/
+.nyc_output/
+*.html.marker
+*.lcov
+htmlcov/

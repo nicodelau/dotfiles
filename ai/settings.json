@@ -1,0 +1,9 @@
+{
+  "model": "claude-sonnet-4-6",
+  "colorScheme": "dark",
+  "agentMode": "accept-edits",
+  "trustedWorkspaces": [
+    "/home/nicolas/Projects",
+    "/home/nicolas/Documents/GitHub/dotfiles"
+  ]
+}

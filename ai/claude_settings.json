@@ -1,0 +1,9 @@
+{
+  "theme": "dark",
+  "editor": "vim",
+  "autoApprove": {
+    "read": true,
+    "write": false,
+    "commands": false
+  }
+}
